@@ -5,7 +5,9 @@
  */
 package edu.wctc.jjs.bookwebapp.controller;
 
+import edu.wctc.jjs.bookwebapp.model.AuthorDao;
 import edu.wctc.jjs.bookwebapp.model.AuthorService;
+import edu.wctc.jjs.bookwebapp.model.MySqlDbAccessor;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
@@ -40,8 +42,16 @@ public class AuthorController extends HttpServlet {
                 
                 
             }
-             AuthorService service = new AuthorService();
-                request.setAttribute("authorList", service.getAuthorList());
+             AuthorService service = new AuthorService(
+        new AuthorDao(
+                new MySqlDbAccessor(),
+                "com.mysql.jdbc.Driver",
+                "jdbc:mysql://localhost:3306/book", 
+                "root","admin"
+        )
+        );
+             
+                request.setAttribute("authorList", service.getAllAuthor("author",50));
         }catch(Exception e){
             request.setAttribute(" errMsg", e.getMessage());
         }
