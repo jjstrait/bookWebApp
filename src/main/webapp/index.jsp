@@ -20,7 +20,7 @@
     <body>
         
         <a href="AuthorController?action=authorList"><h1>List Of Authors</h1></a>
-        <a href="AuthorController?action=authorAdd"><h1>Add Author</h1></a>
+        <a href="addAuthor.jsp"><h1>Add Author</h1></a>
         <a href="AuthorController?action=authorUpdate"><h1>Update Author</h1></a>
         <a href="AuthorController?action=authorDelete"><h1>Delete Author</h1></a>
         
