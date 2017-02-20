@@ -20,6 +20,10 @@
     <body>
         
         <a href="AuthorController?action=authorList"><h1>List Of Authors</h1></a>
+        <a href="AuthorController?action=authorAdd"><h1>Add Author</h1></a>
+        <a href="AuthorController?action=authorUpdate"><h1>Update Author</h1></a>
+        <a href="AuthorController?action=authorDelete"><h1>Delete Author</h1></a>
+        
     </body>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </html>

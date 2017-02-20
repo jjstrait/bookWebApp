@@ -37,12 +37,8 @@ public class AuthorController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try{
-            if(request.getParameter("action").equals("authorList")){
-               
-                
-                
-            }
-             AuthorService service = new AuthorService(
+            
+        AuthorService service = new AuthorService(
         new AuthorDao(
                 new MySqlDbAccessor(),
                 "com.mysql.jdbc.Driver",
@@ -50,8 +46,16 @@ public class AuthorController extends HttpServlet {
                 "root","admin"
         )
         );
-             
+        
+        if(request.getParameter("action").equals("authorList")){
+               
                 request.setAttribute("authorList", service.getAllAuthor("author",50));
+                
+        }else if(request.getParameter("action").equals("authorAdd")){
+        
+        }
+             
+                
         }catch(Exception e){
             request.setAttribute(" errMsg", e.getMessage());
         }
@@ -60,7 +64,8 @@ public class AuthorController extends HttpServlet {
              view.forward(request, response);
         
     }
-
+    
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

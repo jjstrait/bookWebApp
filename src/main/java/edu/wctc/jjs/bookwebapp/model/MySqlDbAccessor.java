@@ -65,9 +65,9 @@ public class MySqlDbAccessor implements DbAccessor {
             sId = id.toString();
         }
         String sql = "DELETE FROM " + tableName + " WHERE " + colName + " = " + id;
-        //Delete From <Table> WHERE <pk> = <id>
+       
         stmt = conn.createStatement();
-        int recordsDeleted = stmt.executeUpdate(sql);
+        stmt.executeUpdate(sql);
 
     }
 
@@ -94,15 +94,14 @@ public class MySqlDbAccessor implements DbAccessor {
         for (int i = 0; i < colValues.size(); i++) {
             pstm.setObject(i + 1, colValues.get(i));
         }
-        System.out.println(sql);
-        System.out.println(pstm);
-        int recUpdated = pstm.executeUpdate();
+
+        pstm.executeUpdate();
 
     }
 
     @Override
     public void updateRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws SQLException {
-        //UPDATE `book`.`author` SET `author_name`='4', `date_added`='4' WHERE `author_id`='3';
+
         String sql = "UPDATE " + tableName + " SET  ";
         StringJoiner join = new StringJoiner(",");
 
@@ -120,9 +119,8 @@ public class MySqlDbAccessor implements DbAccessor {
         }
 
         pstm.setObject(colValues.size()+1, whereVal);
-        System.out.println(sql);
-        System.out.println(pstm);
-        int recUpdated = pstm.executeUpdate();
+        
+        pstm.executeUpdate();
     }
 
     //consider creating a custom exception
