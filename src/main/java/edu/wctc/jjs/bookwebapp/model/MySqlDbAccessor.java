@@ -7,14 +7,18 @@ package edu.wctc.jjs.bookwebapp.model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  *
@@ -55,6 +59,72 @@ public class MySqlDbAccessor implements DbAccessor {
         return results;
     }
 
+    public void deleteById(String tableName, String colName, Object id) throws SQLException {
+        String sId;
+        if (id instanceof String) {
+            sId = id.toString();
+        }
+        String sql = "DELETE FROM " + tableName + " WHERE " + colName + " = " + id;
+        //Delete From <Table> WHERE <pk> = <id>
+        stmt = conn.createStatement();
+        int recordsDeleted = stmt.executeUpdate(sql);
+
+    }
+
+    public void insertRecord(String tableName, List<String> colNames, List colValues) throws SQLException {
+        String sql = "INSERT INTO " + tableName + " ";
+        StringJoiner join = new StringJoiner(",", "(", ")");
+
+        for (String s : colNames) {
+            join.add(s);
+        }
+
+        sql += join.toString();
+        join = new StringJoiner(",", "(", ")");
+        sql += " VALUES ";
+
+        for (Object s : colValues) {
+            join.add("?");
+        }
+
+        sql += join.toString();
+
+        PreparedStatement pstm = conn.prepareStatement(sql);
+
+        for (int i = 0; i < colValues.size(); i++) {
+            pstm.setObject(i + 1, colValues.get(i));
+        }
+        System.out.println(sql);
+        System.out.println(pstm);
+        int recUpdated = pstm.executeUpdate();
+
+    }
+
+    @Override
+    public void updateRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws SQLException {
+        //UPDATE `book`.`author` SET `author_name`='4', `date_added`='4' WHERE `author_id`='3';
+        String sql = "UPDATE " + tableName + " SET  ";
+        StringJoiner join = new StringJoiner(",");
+
+        for (String s : colNames) {
+            join.add(s + "=?");
+        }
+
+        sql+= join.toString();
+        sql+=" WHERE " + whereColName+"= ?";
+        
+        PreparedStatement pstm = conn.prepareStatement(sql);
+
+        for (int i = 0; i < colValues.size(); i++) {
+            pstm.setObject(i + 1, colValues.get(i));
+        }
+
+        pstm.setObject(colValues.size()+1, whereVal);
+        System.out.println(sql);
+        System.out.println(pstm);
+        int recUpdated = pstm.executeUpdate();
+    }
+
     //consider creating a custom exception
     @Override
     public void openConnection(String driverClass, String url, String userName, String pwd) throws ClassNotFoundException, SQLException {
@@ -71,16 +141,34 @@ public class MySqlDbAccessor implements DbAccessor {
             conn.close();
         }
     }
-    
+
     public static void main(String[] args) throws Exception {
         DbAccessor db = new MySqlDbAccessor();
-        
+        List<String> colName = new ArrayList<>();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd");
+
+        colName.add("author_name");
+        colName.add("date_added");
+
+        List colValues = new ArrayList<>();
+
+        colValues.add("Test");
+        colValues.add("2017-02-13");
+
+        List colUpdateValues = new ArrayList<>();
+
+        colUpdateValues.add("Ray Bradbury");
+        colUpdateValues.add("2017-02-13");
+
         db.openConnection("com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book", "root", "admin");
+        //db.insertRecord("author",colName,colValues);
+        db.updateRecord("author",colName, colUpdateValues, "author_id", 5);
+        //db.deleteById("author", "author_id", 4);
         List<Map<String, Object>> records = db.findRecordsFor("author", 50);
         db.closeConnection();
-        
-        for(Map<String,Object> record: records){
-            System.out.println(record);   
+
+        for (Map<String, Object> record : records) {
+            System.out.println(record);
         }
     }
 

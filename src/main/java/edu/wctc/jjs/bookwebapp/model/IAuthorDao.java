@@ -25,7 +25,13 @@ public interface IAuthorDao {
     String getUrl();
 
     String getUserName();
-
+    
+    public void deleteAuthorRecord(String tableName, String pkName, Object pkVal) throws ClassNotFoundException, SQLException;
+    
+    public void addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException;
+    
+    public void updateAuthorRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws ClassNotFoundException, SQLException;
+    
     void setDb(DbAccessor db);
 
     void setDriverClass(String driverClass);

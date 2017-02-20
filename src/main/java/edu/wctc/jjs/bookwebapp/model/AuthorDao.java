@@ -16,6 +16,7 @@ import java.util.Map;
  * @author jstra
  */
 public class AuthorDao implements IAuthorDao {
+
     private DbAccessor db;
     private String driverClass;
     private String url;
@@ -29,28 +30,49 @@ public class AuthorDao implements IAuthorDao {
         this.userName = userName;
         this.pwd = pwd;
     }
-    
+
     @Override
-    public List<Author> getAuthorList(String tableName, int maxRecord) throws ClassNotFoundException, SQLException{
+    public List<Author> getAuthorList(String tableName, int maxRecord) throws ClassNotFoundException, SQLException {
         List<Author> authors = new ArrayList<>();
         db.openConnection(driverClass, url, userName, pwd);
         List<Map<String, Object>> rawData = db.findRecordsFor(tableName, maxRecord);
         db.closeConnection();
-        for(Map<String, Object> recData : rawData){
+        for (Map<String, Object> recData : rawData) {
             Author author = new Author();
-            author.setAuthorId((Integer)recData.get("author_id"));
+            author.setAuthorId((Integer) recData.get("author_id"));
             Object objName = recData.get("author_name");
             String name = objName != null ? objName.toString() : "";
             author.setAuthorName(name);
             Object objDate = recData.get("date_added");
-            Date dateAdded = objDate != null ? (Date)objDate : null;
+            Date dateAdded = objDate != null ? (Date) objDate : null;
             author.setDateAdded(dateAdded);
             authors.add(author);
         }
-        
+
         return authors;
-    }   
-    
+    }
+
+    @Override
+    public void deleteAuthorRecord(String tableName, String pkName, Object pkVal) throws ClassNotFoundException, SQLException {
+        db.openConnection(driverClass, url, userName, pwd);
+        db.deleteById(tableName, pkName, pkVal);
+        db.closeConnection();
+    }
+
+    @Override
+    public void addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException {
+        db.openConnection(driverClass, url, userName, pwd);
+        db.insertRecord(tableName, colNames, colValues);
+        db.closeConnection();
+    }
+
+    @Override
+    public void updateAuthorRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws ClassNotFoundException, SQLException {
+        db.openConnection(driverClass, url, userName, pwd);
+        db.updateRecord(tableName, colNames, colValues, whereColName, whereVal);
+        db.closeConnection();
+    }
+
     @Override
     public DbAccessor getDb() {
         return db;
@@ -100,14 +122,33 @@ public class AuthorDao implements IAuthorDao {
     public void setPwd(String pwd) {
         this.pwd = pwd;
     }
-    
+
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        IAuthorDao dao = new AuthorDao(new MySqlDbAccessor(),"com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book", "root", "admin");
-        List<Author> authors = dao.getAuthorList("author", 50);
+        IAuthorDao dao = new AuthorDao(new MySqlDbAccessor(), "com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book", "root", "admin");
+        List<String> colName = new ArrayList<>();
+        colName.add("author_name");
+        colName.add("date_added");
+
+        List colValues = new ArrayList<>();
+
+        colValues.add("Test");
+        colValues.add("2017-02-13");
+
+        List colUpdateValues = new ArrayList<>();
+
+        colUpdateValues.add("Keplar");
+        colUpdateValues.add("2017-02-15");
         
-     for(Author author: authors){
-            System.out.println(author);   
+        
+        
+        //dao.addAuthor("author", colName, colValues);
+        //dao.updateAuthorRecord("Author", colName, colUpdateValues, "author_name", "test");
+        dao.deleteAuthorRecord("author", "author_id", 12);
+        List<Author> authors = dao.getAuthorList("author", 50);
+
+        for (Author author : authors) {
+            System.out.println(author);
         }
     }
-    
+
 }

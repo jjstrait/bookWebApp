@@ -31,7 +31,18 @@ public class AuthorService {
 
         return dao.getAuthorList(tableName, maxRecords);
     }
-
+    
+    public void deleteAuthor(String tableName,String pkName, Object pkVal) throws ClassNotFoundException, SQLException{
+        dao.deleteAuthorRecord(tableName, pkName, pkVal);
+    }
+    
+    public void addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException{
+        dao.addAuthor(tableName, colNames, colValues);
+    }
+    
+    public void updateAuthor(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws ClassNotFoundException, SQLException {
+    dao.updateAuthorRecord(tableName, colNames, colValues, whereColName, whereVal);
+    }
     public IAuthorDao getDao() {
         return dao;
     }
@@ -39,6 +50,20 @@ public class AuthorService {
     public void setDao(IAuthorDao dao) {
         this.dao = dao;
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         AuthorService service = new AuthorService(
         new AuthorDao(
@@ -48,6 +73,30 @@ public class AuthorService {
                 "root","admin"
         )
         );
+        
+        
+        
+        
+        List<String> colName = new ArrayList<>();
+        colName.add("author_name");
+        colName.add("date_added");
+
+        List colValues = new ArrayList<>();
+
+        colValues.add("Test");
+        colValues.add("2017-02-13");
+
+        List colUpdateValues = new ArrayList<>();
+
+        colUpdateValues.add("Keplar");
+        colUpdateValues.add("2017-02-15");
+        
+        
+        
+        //service.addAuthor("author", colName, colValues);
+        //service.updateAuthor("Author", colName, colUpdateValues, "author_name", "test");
+        //service.deleteAuthor("author", "author_id", 13);
+        
         List<Author> authors = service.getAllAuthor("author", 50);
         
      for(Author author: authors){
