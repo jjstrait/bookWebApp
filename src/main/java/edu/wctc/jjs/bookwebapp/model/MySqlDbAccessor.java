@@ -59,7 +59,8 @@ public class MySqlDbAccessor implements DbAccessor {
         return results;
     }
 
-    public void deleteById(String tableName, String colName, Object id) throws SQLException {
+    @Override
+    public int deleteById(String tableName, String colName, Object id) throws SQLException {
         String sId;
         if (id instanceof String) {
             sId = id.toString();
@@ -67,11 +68,13 @@ public class MySqlDbAccessor implements DbAccessor {
         String sql = "DELETE FROM " + tableName + " WHERE " + colName + " = " + id;
        
         stmt = conn.createStatement();
-        stmt.executeUpdate(sql);
+        return stmt.executeUpdate(sql);
+        
+        
 
     }
 
-    public void insertRecord(String tableName, List<String> colNames, List colValues) throws SQLException {
+    public int insertRecord(String tableName, List<String> colNames, List colValues) throws SQLException {
         String sql = "INSERT INTO " + tableName + " ";
         StringJoiner join = new StringJoiner(",", "(", ")");
 
@@ -95,12 +98,12 @@ public class MySqlDbAccessor implements DbAccessor {
             pstm.setObject(i + 1, colValues.get(i));
         }
 
-        pstm.executeUpdate();
-
+        return pstm.executeUpdate();
+        
     }
 
     @Override
-    public void updateRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws SQLException {
+    public int updateRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws SQLException {
 
         String sql = "UPDATE " + tableName + " SET  ";
         StringJoiner join = new StringJoiner(",");
@@ -120,7 +123,7 @@ public class MySqlDbAccessor implements DbAccessor {
 
         pstm.setObject(colValues.size()+1, whereVal);
         
-        pstm.executeUpdate();
+        return pstm.executeUpdate();
     }
 
     //consider creating a custom exception
@@ -143,7 +146,7 @@ public class MySqlDbAccessor implements DbAccessor {
     public static void main(String[] args) throws Exception {
         DbAccessor db = new MySqlDbAccessor();
         List<String> colName = new ArrayList<>();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
         colName.add("author_name");
         colName.add("date_added");
@@ -151,7 +154,8 @@ public class MySqlDbAccessor implements DbAccessor {
         List colValues = new ArrayList<>();
 
         colValues.add("Test");
-        colValues.add("2017-02-13");
+        String date = df.format(new Date());
+        colValues.add(date);
 
         List colUpdateValues = new ArrayList<>();
 
@@ -159,8 +163,8 @@ public class MySqlDbAccessor implements DbAccessor {
         colUpdateValues.add("2017-02-13");
 
         db.openConnection("com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book", "root", "admin");
-        //db.insertRecord("author",colName,colValues);
-        db.updateRecord("author",colName, colUpdateValues, "author_id", 5);
+        System.out.println(db.insertRecord("author",colName,colValues));
+        //db.updateRecord("author",colName, colUpdateValues, "author_id", 5);
         //db.deleteById("author", "author_id", 4);
         List<Map<String, Object>> records = db.findRecordsFor("author", 50);
         db.closeConnection();

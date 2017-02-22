@@ -13,5 +13,14 @@
     </head>
     <body>
         <h1>Hello World!</h1>
+        <form id="form1" name="formRect" method="POST" action="AuthorController?action=authorAdd">
+            <label >Author ID:</label><input type="text" name="authorName" value=""><br>
+            <label >Author Name:</label><input type="text" name="authorName" value=""><br>
+            <label >Date Added:</label><input type="text" name="authorName" value=""><br>
+            <input class="btn btn-default" type="submit" value="Submit">
+            
+            
+            
+        </form>
     </body>
 </html>

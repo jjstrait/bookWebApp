@@ -53,24 +53,30 @@ public class AuthorDao implements IAuthorDao {
     }
 
     @Override
-    public void deleteAuthorRecord(String tableName, String pkName, Object pkVal) throws ClassNotFoundException, SQLException {
+    public int deleteAuthorRecord(String tableName, String pkName, Object pkVal) throws ClassNotFoundException, SQLException {
         db.openConnection(driverClass, url, userName, pwd);
-        db.deleteById(tableName, pkName, pkVal);
+        int status = db.deleteById(tableName, pkName, pkVal);
         db.closeConnection();
+        
+        return status;
     }
 
     @Override
-    public void addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException {
+    public int addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException {
         db.openConnection(driverClass, url, userName, pwd);
-        db.insertRecord(tableName, colNames, colValues);
+        int status = db.insertRecord(tableName, colNames, colValues);
         db.closeConnection();
+        
+        return status;
     }
 
     @Override
-    public void updateAuthorRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws ClassNotFoundException, SQLException {
+    public int updateAuthorRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws ClassNotFoundException, SQLException {
         db.openConnection(driverClass, url, userName, pwd);
-        db.updateRecord(tableName, colNames, colValues, whereColName, whereVal);
+        int status = db.updateRecord(tableName, colNames, colValues, whereColName, whereVal);
         db.closeConnection();
+        
+        return status;
     }
 
     @Override

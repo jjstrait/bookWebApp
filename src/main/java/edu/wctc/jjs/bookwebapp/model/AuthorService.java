@@ -7,6 +7,7 @@ package edu.wctc.jjs.bookwebapp.model;
 
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public class AuthorService {
     private IAuthorDao dao;
-
+    private final SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
     public AuthorService(IAuthorDao dao) {
         this.dao = dao;
     }
@@ -32,16 +33,18 @@ public class AuthorService {
         return dao.getAuthorList(tableName, maxRecords);
     }
     
-    public void deleteAuthor(String tableName,String pkName, Object pkVal) throws ClassNotFoundException, SQLException{
-        dao.deleteAuthorRecord(tableName, pkName, pkVal);
+    public int deleteAuthor(String tableName,String pkName, Object pkVal) throws ClassNotFoundException, SQLException{
+        return dao.deleteAuthorRecord(tableName, pkName, pkVal);
     }
     
-    public void addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException{
-        dao.addAuthor(tableName, colNames, colValues);
+    public int addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException{
+        String currentDate = DF.format(new Date());
+        colValues.add(currentDate);
+       return dao.addAuthor(tableName, colNames, colValues);
     }
     
-    public void updateAuthor(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws ClassNotFoundException, SQLException {
-    dao.updateAuthorRecord(tableName, colNames, colValues, whereColName, whereVal);
+    public int updateAuthor(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws ClassNotFoundException, SQLException {
+    return dao.updateAuthorRecord(tableName, colNames, colValues, whereColName, whereVal);
     }
     public IAuthorDao getDao() {
         return dao;

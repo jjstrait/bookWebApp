@@ -10,6 +10,12 @@ import edu.wctc.jjs.bookwebapp.model.AuthorService;
 import edu.wctc.jjs.bookwebapp.model.MySqlDbAccessor;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -33,39 +39,55 @@ public class AuthorController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
+    private final String TABLE_NAME = "author";
+    private final List<String> COL_NAMES = new ArrayList<>(Arrays.asList("author_name", "date_added"));
+    private AuthorService service = new AuthorService(
+            new AuthorDao(
+                    new MySqlDbAccessor(),
+                    "com.mysql.jdbc.Driver",
+                    "jdbc:mysql://localhost:3306/book",
+                    "root", "admin"
+            )
+    );
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try{
-            
-        AuthorService service = new AuthorService(
-        new AuthorDao(
-                new MySqlDbAccessor(),
-                "com.mysql.jdbc.Driver",
-                "jdbc:mysql://localhost:3306/book", 
-                "root","admin"
-        )
-        );
-        
-        if(request.getParameter("action").equals("authorList")){
-               
-                request.setAttribute("authorList", service.getAllAuthor("author",50));
-                
-        }else if(request.getParameter("action").equals("authorAdd")){
-        
-        }
-             
-                
-        }catch(Exception e){
+        RequestDispatcher view = request.getRequestDispatcher("index.jsp");
+
+        try {
+
+            switch (request.getParameter("action")) {
+                case "authorList":
+                    view = request.getRequestDispatcher("authors.jsp");
+                    listRefresh(request);
+                    break;
+                case "authorAdd":
+                    view = request.getRequestDispatcher("authors.jsp");
+                    List values = new ArrayList<>();
+                    values.add(request.getParameter("authorName"));
+                    System.out.println(service.addAuthor(TABLE_NAME, COL_NAMES, values));
+                    listRefresh(request);
+                    break;
+                case "authorUpdate":
+                    break;
+                default:
+                    break;
+            }
+
+        } catch (Exception e) {
             request.setAttribute(" errMsg", e.getMessage());
         }
-        
-        RequestDispatcher view = request.getRequestDispatcher("authors.jsp");
-             view.forward(request, response);
-        
+
+        view.forward(request, response);
+
     }
-    
-    
+
+    public void listRefresh(HttpServletRequest request) throws ClassNotFoundException, SQLException {
+        request.setAttribute("authorList", service.getAllAuthor("author", 50));
+    }
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

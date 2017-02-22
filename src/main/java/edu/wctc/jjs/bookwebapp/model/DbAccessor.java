@@ -22,9 +22,9 @@ public interface DbAccessor {
     //consider creating a custom exception
     void openConnection(String driverClass, String url, String userName, String pwd) throws ClassNotFoundException, SQLException;
     
-    public void insertRecord(String tableName, List<String> colNames, List colValues) throws SQLException;
+    public int insertRecord(String tableName, List<String> colNames, List colValues) throws SQLException;
     
-    public void deleteById(String tableName,String colName, Object id) throws SQLException;
+    public int deleteById(String tableName,String colName, Object id) throws SQLException;
     
-    public void updateRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws SQLException;
+    public int updateRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws SQLException;
 }
