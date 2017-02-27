@@ -27,4 +27,6 @@ public interface DbAccessor {
     public int deleteById(String tableName,String colName, Object id) throws SQLException;
     
     public int updateRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws SQLException;
+    
+        public Map<String, Object> findOneRecordFor(String tableName, int maxRecords,String whereColName,Object whereVal) throws SQLException ;
 }

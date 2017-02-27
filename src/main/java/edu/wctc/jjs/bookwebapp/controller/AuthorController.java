@@ -39,7 +39,6 @@ public class AuthorController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    
     private final String TABLE_NAME = "author";
     private final List<String> COL_NAMES = new ArrayList<>(Arrays.asList("author_name", "date_added"));
     private AuthorService service = new AuthorService(
@@ -70,13 +69,51 @@ public class AuthorController extends HttpServlet {
                     System.out.println(service.addAuthor(TABLE_NAME, COL_NAMES, values));
                     listRefresh(request);
                     break;
+                case "authorEditDel":
+                  String[] parameterValues = request.getParameterValues("optionsCheckbox");
+                    if(parameterValues == null){
+                        view = request.getRequestDispatcher("authors.jsp");
+                    }else if (request.getParameter("del")!= null) {
+                        view = request.getRequestDispatcher("authors.jsp");
+                        
+                        
+                        for (String s : parameterValues) {
+
+                            service.deleteAuthor(TABLE_NAME, "author_id", s);
+                        }
+                         
+                                
+                                
+
+                    }else {
+                        
+                    view = request.getRequestDispatcher("updateAuthor.jsp");
+                    request.setAttribute("author", service.getSingleAuthor(TABLE_NAME, 50, "author_id", parameterValues[0]));
+                    }
+                    listRefresh(request);
+
+                    break;
                 case "authorUpdate":
+                    view = request.getRequestDispatcher("authors.jsp");
+                    if (request.getParameter("submit")!= null) {
+                    List val = new ArrayList<>();
+                    val.add(request.getParameter("authorName"));
+                    System.out.println(request.getParameter("dateAdded"));
+                    val.add(request.getParameter("dateAdded"));  
+                    service.updateAuthor(TABLE_NAME, COL_NAMES, val,"author_id",request.getParameter("authorId"));
+                    }
+                    listRefresh(request);
+                    break;
+                case "search":
+                    view = request.getRequestDispatcher("updateAuthor.jsp");
+                    request.setAttribute("author", service.getSingleAuthor(TABLE_NAME, 50, "author_id", request.getParameter("search")));
                     break;
                 default:
                     break;
             }
 
         } catch (Exception e) {
+            view = request.getRequestDispatcher("authors.jsp");
             request.setAttribute(" errMsg", e.getMessage());
         }
 

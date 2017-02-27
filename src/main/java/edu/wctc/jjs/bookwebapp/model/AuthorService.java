@@ -34,9 +34,10 @@ public class AuthorService {
     }
     
     public int deleteAuthor(String tableName,String pkName, Object pkVal) throws ClassNotFoundException, SQLException{
-        return dao.deleteAuthorRecord(tableName, pkName, pkVal);
+      
+            return dao.deleteAuthorRecord(tableName, pkName, pkVal);
+       
     }
-    
     public int addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException{
         String currentDate = DF.format(new Date());
         colValues.add(currentDate);
@@ -53,6 +54,22 @@ public class AuthorService {
     public void setDao(IAuthorDao dao) {
         this.dao = dao;
     }
+    
+    public Author getSingleAuthor(String tableName, int maxRecords,String whereColName,Object whereVal) throws SQLException, ClassNotFoundException {
+    return dao.getSingleAuthor(tableName, maxRecords, whereColName, whereVal);
+    }
+    
+    public Author getAuthorByName(String tableName, int maxRecords,String whereColName,String whereVal) throws SQLException, ClassNotFoundException{
+            List<Author> authors = dao.getAuthorList(tableName, maxRecords);
+            Object val = null;
+            for(Author a:authors){
+                if(a.getAuthorName().equals(whereVal)){
+                val = a.getAuthorId();
+                }
+            }
+         return dao.getSingleAuthor(tableName, maxRecords, whereColName, val);
+    }
+
     
     
     
@@ -91,13 +108,13 @@ public class AuthorService {
 
         List colUpdateValues = new ArrayList<>();
 
-        colUpdateValues.add("Keplar");
+        colUpdateValues.add("Ray Bardbury");
         colUpdateValues.add("2017-02-15");
         
         
         
         //service.addAuthor("author", colName, colValues);
-        //service.updateAuthor("Author", colName, colUpdateValues, "author_name", "test");
+        service.updateAuthor("Author", colName, colUpdateValues, "author_id", "5");
         //service.deleteAuthor("author", "author_id", 13);
         
         List<Author> authors = service.getAllAuthor("author", 50);

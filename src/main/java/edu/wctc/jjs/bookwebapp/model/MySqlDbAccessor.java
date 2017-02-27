@@ -32,8 +32,10 @@ public class MySqlDbAccessor implements DbAccessor {
 
     @Override
     public List<Map<String, Object>> findRecordsFor(String tableName, int maxRecords) throws SQLException {
+        
+        
         List<Map<String, Object>> results = new ArrayList<>();
-
+       
         String sql = "";
         if (maxRecords > 0) {
 
@@ -57,6 +59,37 @@ public class MySqlDbAccessor implements DbAccessor {
         }
 
         return results;
+    }
+    
+    @Override
+    public Map<String, Object> findOneRecordFor(String tableName, int maxRecords,String whereColName,Object whereVal) throws SQLException {
+       
+       
+        String sql = "";
+        if (maxRecords > 0) {
+
+            sql = "SELECT * FROM " + tableName + " WHERE "+whereColName+"=?";
+        } else {
+            sql = "SELECT * FROM " + tableName;
+        }
+        PreparedStatement pstm = conn.prepareStatement(sql);
+        pstm.setObject(1, whereVal);
+   
+        rs = pstm.executeQuery();
+       
+       ResultSetMetaData rsmd = rs.getMetaData();
+        int colCount = rsmd.getColumnCount();
+        Map<String, Object> record = null;
+        while (rs.next()) {
+            record = new LinkedHashMap<>();
+            for (int colNo = 1; colNo <= colCount; colNo++) {
+                String colName = rsmd.getColumnName(colNo);
+                record.put(colName, rs.getObject(colNo));
+            }
+           
+        }
+
+        return record;
     }
 
     @Override
@@ -163,10 +196,11 @@ public class MySqlDbAccessor implements DbAccessor {
         colUpdateValues.add("2017-02-13");
 
         db.openConnection("com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book", "root", "admin");
-        System.out.println(db.insertRecord("author",colName,colValues));
+        //System.out.println(db.insertRecord("author",colName,colValues));
         //db.updateRecord("author",colName, colUpdateValues, "author_id", 5);
         //db.deleteById("author", "author_id", 4);
         List<Map<String, Object>> records = db.findRecordsFor("author", 50);
+        System.out.println(db.findOneRecordFor("author", 50, "author_id", 5));
         db.closeConnection();
 
         for (Map<String, Object> record : records) {

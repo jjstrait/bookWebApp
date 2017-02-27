@@ -18,35 +18,92 @@
 
     </head>
     <body>
-        <h1>List of Authors</h1>
-        <table class="table table-bordered">
-            <thead class="">
-            <tr class="font-md"><th>Id</th><th>Author Name</th><th>Date Added</th></tr>
-            </thead>
-            <tbody>
-            <c:forEach var="a" items="${authorList}" varStatus="line">
-                <c:choose>
-                    <c:when test="${line.count%2!=0}">
-                        <tr style="background-color: #ccffcc">
-                        </c:when>
-                        <c:otherwise>
-                        <tr>
-                        </c:otherwise>
-                    </c:choose>
+        <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+        <a class="navbar-brand" href="index.jsp">Book Web Application</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="AuthorController?action=authorList">View Records<span class="sr-only">(current)</span></a></li>
+        
+      <form class="navbar-form navbar-right" method="POST" action="AuthorController?action=search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+     
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+        <h1>List of Authors ${errMsg}</h1>
+        <div>
+        <form id="form1" name="formRect" method="POST" action="AuthorController?action=authorEditDel">        
+
+            <table class="table table-bordered table-striped table-condensed table-hover">
+                <thead class="">
+                    <tr class="font-md"><th>Select</th><th>Author Name</th><th>Date Added</th></tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="a" items="${authorList}" varStatus="line">
+                        <tr onclick="selectRow(this)">
 
 
-                    <td>${a.authorId}</td><td>${a.authorName}</td><td>${a.dateAdded}</td>
+                            <td>
 
-                </tr>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="optionsCheckbox" id="${a.authorId}" value="${a.authorId}" >
+                                    </label>    
 
-            </c:forEach>
+                                </div>
+
+                            </td><td>${a.authorName}</td><td>${a.dateAdded}</td>
+
+                        </tr>
+
+                    </c:forEach>
                 </tbody>
-        </table>
+            </table>
+            <input class="btn btn-primary" name="edit" type="submit" value="Edit">
+        <input class="btn btn-danger" name="del" type="submit" value="Delete">
+         
+        <span class="pull-right"><input class="btn btn-success" name="Add" type="button" value="Add" onclick="window.location='addAuthor.jsp';"></span>
+          
+              </form>
+           
+        </div>
+        
+      
+                   
+        
+                    
+                
+
     </body>
 
 
 
+    <script   src="https://code.jquery.com/jquery-3.1.1.slim.min.js"   integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="   crossorigin="anonymous"></script>
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script>
+                            function selectRow(row)
+                            {
+                                var firstInput = row.getElementsByTagName('input')[0];
+                                firstInput.checked = !firstInput.checked;
+                            }
+    </script>
+
 
 </html>

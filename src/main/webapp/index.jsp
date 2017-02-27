@@ -35,9 +35,9 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="authors.jsp">View Records<span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="AuthorController?action=authorList">View Records<span class="sr-only">(current)</span></a></li>
         
-      <form class="navbar-form navbar-right">
+      <form class="navbar-form navbar-right" method="POST" action="AuthorController?action=search">
         <div class="form-group">
           <input type="text" class="form-control" placeholder="Search">
         </div>
@@ -48,13 +48,15 @@
   </div><!-- /.container-fluid -->
 </nav>
         <div class="jumbotron">
+            <h2>Authors Data View:</h2>
             
-            
+            <form class="form-group form-group-lg" id="form1" name="formRect" method="POST" action="AuthorController?action=authorList">
+                <div class="col-md-offset-1">
+            <input class="btn btn-default" type="submit" value="List of Authors">
+                </div>
+        </form>
         </div>
-        <a href="AuthorController?action=authorList"><h1>List Of Authors</h1></a>
-        <a href="addAuthor.jsp"><h1>Add Author</h1></a>
-        <a href="AuthorController?action=authorUpdate"><h1>Update Author</h1></a>
-        <a href="AuthorController?action=authorDelete"><h1>Delete Author</h1></a>
+        
         
     </body>
     <script   src="https://code.jquery.com/jquery-3.1.1.slim.min.js"   integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="   crossorigin="anonymous"></script>

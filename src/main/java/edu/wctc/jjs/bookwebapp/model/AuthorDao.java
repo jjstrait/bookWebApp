@@ -51,6 +51,25 @@ public class AuthorDao implements IAuthorDao {
 
         return authors;
     }
+        public Author getSingleAuthor(String tableName, int maxRecords,String whereColName,Object whereVal) throws SQLException, ClassNotFoundException {
+        Author authors;
+        db.openConnection(driverClass, url, userName, pwd);
+        Map<String, Object> rawData = db.findOneRecordFor(tableName, maxRecords, whereColName, whereVal);
+        db.closeConnection();
+       
+            Author author = new Author();
+            author.setAuthorId((Integer) rawData.get("author_id"));
+            Object objName = rawData.get("author_name");
+            String name = objName != null ? objName.toString() : "";
+            author.setAuthorName(name);
+            Object objDate = rawData.get("date_added");
+            Date dateAdded = objDate != null ? (Date) objDate : null;
+            author.setDateAdded(dateAdded);
+            
+        
+
+        return author;
+    }
 
     @Override
     public int deleteAuthorRecord(String tableName, String pkName, Object pkVal) throws ClassNotFoundException, SQLException {
