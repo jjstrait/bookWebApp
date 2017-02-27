@@ -49,7 +49,9 @@ public class AuthorController extends HttpServlet {
                     "root", "admin"
             )
     );
-
+    private final String AUTHORS = "authors.jsp";
+    private final String AUTHOR_ID = "author_id";
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -59,11 +61,11 @@ public class AuthorController extends HttpServlet {
 
             switch (request.getParameter("action")) {
                 case "authorList":
-                    view = request.getRequestDispatcher("authors.jsp");
+                    view = request.getRequestDispatcher(AUTHORS);
                     listRefresh(request);
                     break;
                 case "authorAdd":
-                    view = request.getRequestDispatcher("authors.jsp");
+                    view = request.getRequestDispatcher(AUTHORS);
                     List values = new ArrayList<>();
                     values.add(request.getParameter("authorName"));
                     System.out.println(service.addAuthor(TABLE_NAME, COL_NAMES, values));
@@ -72,14 +74,14 @@ public class AuthorController extends HttpServlet {
                 case "authorEditDel":
                   String[] parameterValues = request.getParameterValues("optionsCheckbox");
                     if(parameterValues == null){
-                        view = request.getRequestDispatcher("authors.jsp");
+                        view = request.getRequestDispatcher(AUTHORS);
                     }else if (request.getParameter("del")!= null) {
-                        view = request.getRequestDispatcher("authors.jsp");
+                        view = request.getRequestDispatcher(AUTHORS);
                         
                         
                         for (String s : parameterValues) {
 
-                            service.deleteAuthor(TABLE_NAME, "author_id", s);
+                            service.deleteAuthor(TABLE_NAME, AUTHOR_ID, s);
                         }
                          
                                 
@@ -88,32 +90,32 @@ public class AuthorController extends HttpServlet {
                     }else {
                         
                     view = request.getRequestDispatcher("updateAuthor.jsp");
-                    request.setAttribute("author", service.getSingleAuthor(TABLE_NAME, 50, "author_id", parameterValues[0]));
+                    request.setAttribute("author", service.getSingleAuthor(TABLE_NAME, 50, AUTHOR_ID, parameterValues[0]));
                     }
                     listRefresh(request);
 
                     break;
                 case "authorUpdate":
-                    view = request.getRequestDispatcher("authors.jsp");
+                    view = request.getRequestDispatcher(AUTHORS);
                     if (request.getParameter("submit")!= null) {
                     List val = new ArrayList<>();
                     val.add(request.getParameter("authorName"));
                     System.out.println(request.getParameter("dateAdded"));
                     val.add(request.getParameter("dateAdded"));  
-                    service.updateAuthor(TABLE_NAME, COL_NAMES, val,"author_id",request.getParameter("authorId"));
+                    service.updateAuthor(TABLE_NAME, COL_NAMES, val,AUTHOR_ID,request.getParameter("authorId"));
                     }
                     listRefresh(request);
                     break;
                 case "search":
                     view = request.getRequestDispatcher("updateAuthor.jsp");
-                    request.setAttribute("author", service.getSingleAuthor(TABLE_NAME, 50, "author_id", request.getParameter("search")));
+                    request.setAttribute("author", service.getSingleAuthor(TABLE_NAME, 50, AUTHOR_ID, request.getParameter("search")));
                     break;
                 default:
                     break;
             }
 
         } catch (Exception e) {
-            view = request.getRequestDispatcher("authors.jsp");
+            view = request.getRequestDispatcher(AUTHORS);
             request.setAttribute(" errMsg", e.getMessage());
         }
 
