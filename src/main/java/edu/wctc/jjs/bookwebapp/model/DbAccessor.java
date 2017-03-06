@@ -8,6 +8,8 @@ package edu.wctc.jjs.bookwebapp.model;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
+
 
 /**
  *
@@ -21,6 +23,7 @@ public interface DbAccessor {
 
     //consider creating a custom exception
     void openConnection(String driverClass, String url, String userName, String pwd) throws ClassNotFoundException, SQLException;
+    public void openConnection(DataSource ds) throws SQLException;
     
     public int insertRecord(String tableName, List<String> colNames, List colValues) throws SQLException;
     
@@ -29,4 +32,5 @@ public interface DbAccessor {
     public int updateRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws SQLException;
     
         public Map<String, Object> findOneRecordFor(String tableName, int maxRecords,String whereColName,Object whereVal) throws SQLException ;
+        public List<Map<String, Object>>findRecordsByWildCard(String tableName, int maxRecords,String whereColName,Object whereVal) throws SQLException;
 }

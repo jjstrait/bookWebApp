@@ -59,15 +59,8 @@ public class AuthorService {
     return dao.getSingleAuthor(tableName, maxRecords, whereColName, whereVal);
     }
     
-    public Author getAuthorByName(String tableName, int maxRecords,String whereColName,String whereVal) throws SQLException, ClassNotFoundException{
-            List<Author> authors = dao.getAuthorList(tableName, maxRecords);
-            Object val = null;
-            for(Author a:authors){
-                if(a.getAuthorName().equals(whereVal)){
-                val = a.getAuthorId();
-                }
-            }
-         return dao.getSingleAuthor(tableName, maxRecords, whereColName, val);
+    public List getAuthorByName(String tableName, int maxRecords,String whereColName,Object whereVal) throws SQLException, ClassNotFoundException{
+         return dao.getAuthorListFromSearch(tableName, maxRecords, whereColName, whereVal);
     }
 
     
@@ -114,10 +107,11 @@ public class AuthorService {
         
         
         //service.addAuthor("author", colName, colValues);
-        service.updateAuthor("Author", colName, colUpdateValues, "author_id", "5");
+        //service.updateAuthor("Author", colName, colUpdateValues, "author_id", "5");
         //service.deleteAuthor("author", "author_id", 13);
-        
-        List<Author> authors = service.getAllAuthor("author", 50);
+        //List<Author> authors = service.getAuthorByName("author", 50, "date_added", "2017-02-27");
+        //List<Author> authors = service.getAllAuthor("author", 50);
+        List<Author> authors = service.getAuthorByName("author", 50, "author_name", "H");
         
      for(Author author: authors){
             System.out.println(author);   

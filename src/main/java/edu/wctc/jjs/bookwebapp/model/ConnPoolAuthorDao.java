@@ -10,31 +10,28 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
 
 /**
  *
  * @author jstra
  */
-public class AuthorDao implements IAuthorDao {
+public class ConnPoolAuthorDao implements IAuthorDao {
 
+    private DataSource ds;
     private DbAccessor db;
-    private String driverClass;
-    private String url;
-    private String userName;
-    private String pwd;
 
-    public AuthorDao(DbAccessor db, String driverClass, String url, String userName, String pwd) {
+    public ConnPoolAuthorDao(DataSource ds, DbAccessor db) {
+        this.ds = ds;
         this.db = db;
-        this.driverClass = driverClass;
-        this.url = url;
-        this.userName  = userName;
-        this.pwd = pwd;
     }
+
+   
 
     @Override
     public List<Author> getAuthorList(String tableName, int maxRecord) throws ClassNotFoundException, SQLException {
         List<Author> authors = new ArrayList<>();
-        db.openConnection(driverClass, url, userName, pwd);
+        db.openConnection(ds);
         List<Map<String, Object>> rawData = db.findRecordsFor(tableName, maxRecord);
         db.closeConnection();
         for (Map<String, Object> recData : rawData) {
@@ -53,7 +50,7 @@ public class AuthorDao implements IAuthorDao {
     }
         public Author getSingleAuthor(String tableName, int maxRecords,String whereColName,Object whereVal) throws SQLException, ClassNotFoundException {
         Author authors;
-        db.openConnection(driverClass, url, userName, pwd);
+        db.openConnection(ds);
         Map<String, Object> rawData = db.findOneRecordFor(tableName, maxRecords, whereColName, whereVal);
         db.closeConnection();
        
@@ -73,7 +70,7 @@ public class AuthorDao implements IAuthorDao {
     @Override
         public List<Author> getAuthorListFromSearch(String tableName, int maxRecord,String whereColName,Object whereVal) throws ClassNotFoundException, SQLException {
         List<Author> authors = new ArrayList<>();
-        db.openConnection(driverClass, url, userName, pwd);
+        db.openConnection(ds);
         List<Map<String, Object>> rawData = db.findRecordsByWildCard(tableName, maxRecord, whereColName, whereVal);
         db.closeConnection();
         for (Map<String, Object> recData : rawData) {
@@ -93,7 +90,7 @@ public class AuthorDao implements IAuthorDao {
 
     @Override
     public int deleteAuthorRecord(String tableName, String pkName, Object pkVal) throws ClassNotFoundException, SQLException {
-        db.openConnection(driverClass, url, userName, pwd);
+        db.openConnection(ds);
         int status = db.deleteById(tableName, pkName, pkVal);
         db.closeConnection();
         
@@ -102,7 +99,7 @@ public class AuthorDao implements IAuthorDao {
 
     @Override
     public int addAuthor(String tableName, List<String> colNames, List colValues) throws ClassNotFoundException, SQLException {
-        db.openConnection(driverClass, url, userName, pwd);
+        db.openConnection(ds);
         int status = db.insertRecord(tableName, colNames, colValues);
         db.closeConnection();
         
@@ -111,14 +108,14 @@ public class AuthorDao implements IAuthorDao {
 
     @Override
     public int updateAuthorRecord(String tableName, List<String> colNames, List colValues, String whereColName, Object whereVal) throws ClassNotFoundException, SQLException {
-        db.openConnection(driverClass, url, userName, pwd);
+        db.openConnection(ds);
         int status = db.updateRecord(tableName, colNames, colValues, whereColName, whereVal);
         db.closeConnection();
         
         return status;
     }
 
-   
+  
     public DbAccessor getDb() {
         return db;
     }
@@ -128,48 +125,10 @@ public class AuthorDao implements IAuthorDao {
         this.db = db;
     }
 
-  
-    public String getDriverClass() {
-        return driverClass;
-    }
-
-    
-    public void setDriverClass(String driverClass) {
-        this.driverClass = driverClass;
-    }
-
    
-    public String getUrl() {
-        return url;
-    }
-
-    
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    
-    public String getUserName() {
-        return userName;
-    }
-
-    
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    
-    public String getPwd() {
-        return pwd;
-    }
-
-    
-    public void setPwd(String pwd) {
-        this.pwd = pwd;
-    }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        IAuthorDao dao = new AuthorDao(new MySqlDbAccessor(), "com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book", "root", "admin");
+       // IAuthorDao dao = new ConnPoolAuthorDao(new MySqlDbAccessor());
         List<String> colName = new ArrayList<>();
         colName.add("author_name");
         colName.add("date_added");
@@ -188,13 +147,13 @@ public class AuthorDao implements IAuthorDao {
         
         //dao.addAuthor("author", colName, colValues);
         //dao.updateAuthorRecord("Author", colName, colUpdateValues, "author_name", "test");
-        dao.deleteAuthorRecord("author", "author_id", 12);
+       // dao.deleteAuthorRecord("author", "author_id", 12);
         //List<Author> authors = dao.getAuthorList("author", 50);
-        List<Author> authors = dao.getAuthorListFromSearch("author", 50, "author_name", "h");
+        //List<Author> authors = dao.getAuthorListFromSearch("author", 50, "author_name", "h");
 
-        for (Author author : authors) {
-            System.out.println(author);
-        }
+       // for (Author author : authors) {
+         //   System.out.println(author);
+        //}
     }
 
 }

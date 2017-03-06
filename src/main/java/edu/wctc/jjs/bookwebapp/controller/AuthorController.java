@@ -7,21 +7,27 @@ package edu.wctc.jjs.bookwebapp.controller;
 
 import edu.wctc.jjs.bookwebapp.model.AuthorDao;
 import edu.wctc.jjs.bookwebapp.model.AuthorService;
+import edu.wctc.jjs.bookwebapp.model.DbAccessor;
+import edu.wctc.jjs.bookwebapp.model.IAuthorDao;
 import edu.wctc.jjs.bookwebapp.model.MySqlDbAccessor;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 
 /**
  *
@@ -39,18 +45,52 @@ public class AuthorController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    private final String TABLE_NAME = "author";
-    private final List<String> COL_NAMES = new ArrayList<>(Arrays.asList("author_name", "date_added"));
-    private AuthorService service = new AuthorService(
-            new AuthorDao(
-                    new MySqlDbAccessor(),
-                    "com.mysql.jdbc.Driver",
-                    "jdbc:mysql://localhost:3306/book",
-                    "root", "admin"
-            )
-    );
-    private final String AUTHORS = "authors.jsp";
-    private final String AUTHOR_ID = "author_id";
+    
+   
+   
+    private String driverClass;
+    private String url;
+    private String userName;
+    private String password;
+    private String dbStrategyClassName;
+    private String daoClassName;
+    private String jndiName;
+    
+    private final String AUTHORS_PAGE ="authors.jsp";
+    private final String ADD_AUTHOR_PAGE ="updateAuthor.jsp";
+    
+    private final String ACTION = "action";
+    private final String ACTION_AUTHOR_LIST = "authorList";
+    private final String ACTION_AUTHOR_ADD = "authorAdd";
+    private final String ACTION_AUTHOR_EDIT_DEL = "authorEditDel";
+    private final String ACTION_AUTHOR_UPDATE = "authorUpdate";
+    private final String ACTION_AUTHOR_SEARCH = "search";
+    
+    private final String DB_AUTHOR_TABLE = "author";
+    private final String DB_AUTHOR_ID = "author_id";
+    private final String DB_AUTHOR_NAME = "author_name";
+    private final String DB_DATE_ADDED = "date_added";
+    
+    private final String PRAM_AUTHOR_NAME = "authorName";
+    private final String PRAM_AUTHOR_ID = "authorId";
+    private final String PRAM_DATE_ADDED = "dateAdded";
+    private final String PRAM_CHECK_BOX = "optionsCheckbox";
+    private final String PRAM_SUBMIT = "submit";
+    private final String PRAM_DEL = "del";
+    
+    private final String ATT_ERR_MSG = "errMsg";
+    
+    
+     private final List<String> COL_NAMES = new ArrayList<>(Arrays.asList(DB_AUTHOR_NAME, DB_DATE_ADDED));
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -58,73 +98,136 @@ public class AuthorController extends HttpServlet {
         RequestDispatcher view = request.getRequestDispatcher("index.jsp");
 
         try {
-
-            switch (request.getParameter("action")) {
-                case "authorList":
-                    view = request.getRequestDispatcher(AUTHORS);
-                    listRefresh(request);
+            AuthorService service = injectDependenciesAndGetAuthorService();
+            switch (request.getParameter(ACTION)) {
+                case ACTION_AUTHOR_LIST:
+                    view = request.getRequestDispatcher(AUTHORS_PAGE);
+                    listRefresh(request, service);
                     break;
-                case "authorAdd":
-                    view = request.getRequestDispatcher(AUTHORS);
+                case ACTION_AUTHOR_ADD:
+                    view = request.getRequestDispatcher(AUTHORS_PAGE);
                     List values = new ArrayList<>();
-                    values.add(request.getParameter("authorName"));
-                    System.out.println(service.addAuthor(TABLE_NAME, COL_NAMES, values));
-                    listRefresh(request);
+                    values.add(request.getParameter(PRAM_AUTHOR_NAME));
+                    System.out.println(service.addAuthor(DB_AUTHOR_TABLE, COL_NAMES, values));
+                    listRefresh(request, service);
                     break;
-                case "authorEditDel":
-                  String[] parameterValues = request.getParameterValues("optionsCheckbox");
-                    if(parameterValues == null){
-                        view = request.getRequestDispatcher(AUTHORS);
-                    }else if (request.getParameter("del")!= null) {
-                        view = request.getRequestDispatcher(AUTHORS);
-                        
-                        
+                case ACTION_AUTHOR_EDIT_DEL:
+                    String[] parameterValues = request.getParameterValues(PRAM_CHECK_BOX);
+                    if (parameterValues == null) {
+                        view = request.getRequestDispatcher(AUTHORS_PAGE);
+                    } else if (request.getParameter(PRAM_DEL) != null) {
+                        view = request.getRequestDispatcher(AUTHORS_PAGE);
+
                         for (String s : parameterValues) {
 
-                            service.deleteAuthor(TABLE_NAME, AUTHOR_ID, s);
+                            service.deleteAuthor(DB_AUTHOR_TABLE, DB_AUTHOR_ID, s);
                         }
-                         
-                                
-                                
 
-                    }else {
-                        
-                    view = request.getRequestDispatcher("updateAuthor.jsp");
-                    request.setAttribute("author", service.getSingleAuthor(TABLE_NAME, 50, AUTHOR_ID, parameterValues[0]));
+                    } else {
+
+                        view = request.getRequestDispatcher(ADD_AUTHOR_PAGE);
+                        request.setAttribute(DB_AUTHOR_TABLE, service.getSingleAuthor(DB_AUTHOR_TABLE, 50, DB_AUTHOR_ID, parameterValues[0]));
                     }
-                    listRefresh(request);
+                    listRefresh(request, service);
 
                     break;
-                case "authorUpdate":
-                    view = request.getRequestDispatcher(AUTHORS);
-                    if (request.getParameter("submit")!= null) {
-                    List val = new ArrayList<>();
-                    val.add(request.getParameter("authorName"));
-                    System.out.println(request.getParameter("dateAdded"));
-                    val.add(request.getParameter("dateAdded"));  
-                    service.updateAuthor(TABLE_NAME, COL_NAMES, val,AUTHOR_ID,request.getParameter("authorId"));
+                case ACTION_AUTHOR_UPDATE:
+                    view = request.getRequestDispatcher(AUTHORS_PAGE);
+                    if (request.getParameter(PRAM_SUBMIT) != null) {
+                        List val = new ArrayList<>();
+                        val.add(request.getParameter(PRAM_AUTHOR_NAME));
+                        System.out.println(request.getParameter(PRAM_DATE_ADDED));
+                        val.add(request.getParameter(PRAM_DATE_ADDED));
+                        service.updateAuthor(DB_AUTHOR_TABLE, COL_NAMES, val, DB_AUTHOR_ID, request.getParameter(PRAM_AUTHOR_ID));
                     }
-                    listRefresh(request);
+                    listRefresh(request, service);
                     break;
-                case "search":
-                    view = request.getRequestDispatcher("updateAuthor.jsp");
-                    request.setAttribute("author", service.getSingleAuthor(TABLE_NAME, 50, AUTHOR_ID, request.getParameter("search")));
+                case ACTION_AUTHOR_SEARCH:
+                    view = request.getRequestDispatcher(AUTHORS_PAGE);
+             
+                    request.setAttribute(ACTION_AUTHOR_LIST, service.getAuthorByName(DB_AUTHOR_TABLE, 50, DB_AUTHOR_NAME, request.getParameter("search")));
+                      
                     break;
                 default:
                     break;
             }
 
         } catch (Exception e) {
-            view = request.getRequestDispatcher(AUTHORS);
-            request.setAttribute(" errMsg", e.getMessage());
+            view = request.getRequestDispatcher(AUTHORS_PAGE);
+            request.setAttribute(ATT_ERR_MSG, e.getMessage());
         }
 
         view.forward(request, response);
 
     }
+    
 
-    public void listRefresh(HttpServletRequest request) throws ClassNotFoundException, SQLException {
-        request.setAttribute("authorList", service.getAllAuthor("author", 50));
+     /*
+        This helper method just makes the code more modular and readable.
+        It's single responsibility principle for a method.
+    */
+    private AuthorService injectDependenciesAndGetAuthorService() throws Exception {
+        // Use Liskov Substitution Principle and Java Reflection to
+        // instantiate the chosen DbAccessor based on the class name retrieved
+        // from web.xml
+        Class dbClass = Class.forName(dbStrategyClassName);
+        // Use Java reflection to instanntiate the DbAccessor object
+        // Note that DbAccessor classes have no constructor params
+        DbAccessor db = (DbAccessor) dbClass.newInstance();
+
+        // Use Liskov Substitution Principle and Java Reflection to
+        // instantiate the chosen DAO based on the class name retrieved above.
+        // This one is trickier because the available DAO classes have
+        // different constructor params
+        IAuthorDao authorDao = null;
+        Class daoClass = Class.forName(daoClassName);
+        Constructor constructor = null;
+        
+        // This will only work for the non-pooled AuthorDao
+        try {
+            constructor = daoClass.getConstructor(new Class[]{
+                DbAccessor.class, String.class, String.class, String.class, String.class
+            });
+        } catch(NoSuchMethodException nsme) {
+            // do nothing, the exception means that there is no such constructor,
+            // so code will continue executing below
+        }
+
+        // constructor will be null if using connectin pool dao because the
+        // constructor has a different number and type of arguments
+        
+        if (constructor != null) {
+            // conn pool NOT used so constructor has these arguments
+            Object[] constructorArgs = new Object[]{
+                db, driverClass, url, userName, password
+            };
+            authorDao = (IAuthorDao) constructor
+                    .newInstance(constructorArgs);
+        } else {
+            /*
+             Here's what the connection pool version looks like. First
+             we lookup the JNDI name of the Glassfish connection pool
+             and then we use Java Refletion to create the needed
+             objects based on the servlet init params
+             */
+            Context ctx = new InitialContext();
+            Context envCtx = (Context) ctx.lookup("java:comp/env");
+            DataSource ds = (DataSource) envCtx.lookup(jndiName);
+            constructor = daoClass.getConstructor(new Class[]{
+                DataSource.class, DbAccessor.class
+            });
+            Object[] constructorArgs = new Object[]{
+                ds, db
+            };
+
+            authorDao = (IAuthorDao) constructor
+                    .newInstance(constructorArgs);
+        }
+        
+        return new AuthorService(authorDao);
+    }
+    public void listRefresh(HttpServletRequest request, AuthorService service) throws ClassNotFoundException, SQLException {
+        request.setAttribute(ACTION_AUTHOR_LIST, service.getAllAuthor(DB_AUTHOR_TABLE, 50));
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -166,4 +269,19 @@ public class AuthorController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+    @Override
+    public void init() throws ServletException {
+        driverClass = getServletContext()
+                .getInitParameter("db.driver.class");
+        url = getServletContext()
+                .getInitParameter("db.url");
+        userName = getServletContext()
+                .getInitParameter("db.username");
+        password = getServletContext()
+                .getInitParameter("db.password");
+
+        dbStrategyClassName = getServletContext().getInitParameter("dbStrategy");
+        daoClassName = getServletContext().getInitParameter("authorDao");
+        jndiName = getServletContext().getInitParameter("connPoolName");
+    }
 }
