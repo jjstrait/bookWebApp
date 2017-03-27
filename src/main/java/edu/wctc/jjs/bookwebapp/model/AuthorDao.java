@@ -188,7 +188,7 @@ public class AuthorDao implements IAuthorDao {
         
         //dao.addAuthor("author", colName, colValues);
         //dao.updateAuthorRecord("Author", colName, colUpdateValues, "author_name", "test");
-        dao.deleteAuthorRecord("author", "author_id", 12);
+        //dao.deleteAuthorRecord("author", "author_id", 12);
         //List<Author> authors = dao.getAuthorList("author", 50);
         List<Author> authors = dao.getAuthorListFromSearch("author", 50, "author_name", "h");
 

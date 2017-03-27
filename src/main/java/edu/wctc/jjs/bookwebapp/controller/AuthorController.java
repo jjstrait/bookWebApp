@@ -56,8 +56,8 @@ public class AuthorController extends HttpServlet {
     private String daoClassName;
     private String jndiName;
     
-    private final String AUTHORS_PAGE ="authors.jsp";
-    private final String ADD_AUTHOR_PAGE ="updateAuthor.jsp";
+    private final String AUTHORS_PAGE ="/authors.jsp";
+    private final String ADD_AUTHOR_PAGE ="/updateAuthor.jsp";
     
     private final String ACTION = "action";
     private final String ACTION_AUTHOR_LIST = "authorList";
@@ -81,9 +81,10 @@ public class AuthorController extends HttpServlet {
     private final String ATT_ERR_MSG = "errMsg";
     
     
-     private final List<String> COL_NAMES = new ArrayList<>(Arrays.asList(DB_AUTHOR_NAME, DB_DATE_ADDED));
+    private final List<String> COL_NAMES = new ArrayList<>(Arrays.asList(DB_AUTHOR_NAME, DB_DATE_ADDED));
     
-    
+     
+    private String returnPage;
     
     
     
@@ -95,28 +96,28 @@ public class AuthorController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        RequestDispatcher view = request.getRequestDispatcher("index.jsp");
+        returnPage ="index.jsp";
 
         try {
             AuthorService service = injectDependenciesAndGetAuthorService();
             switch (request.getParameter(ACTION)) {
                 case ACTION_AUTHOR_LIST:
-                    view = request.getRequestDispatcher(AUTHORS_PAGE);
+                    returnPage =AUTHORS_PAGE;
                     listRefresh(request, service);
                     break;
                 case ACTION_AUTHOR_ADD:
-                    view = request.getRequestDispatcher(AUTHORS_PAGE);
+                   returnPage =AUTHORS_PAGE;
                     List values = new ArrayList<>();
                     values.add(request.getParameter(PRAM_AUTHOR_NAME));
-                    System.out.println(service.addAuthor(DB_AUTHOR_TABLE, COL_NAMES, values));
+                    service.addAuthor(DB_AUTHOR_TABLE, COL_NAMES, values);
                     listRefresh(request, service);
                     break;
                 case ACTION_AUTHOR_EDIT_DEL:
                     String[] parameterValues = request.getParameterValues(PRAM_CHECK_BOX);
                     if (parameterValues == null) {
-                        view = request.getRequestDispatcher(AUTHORS_PAGE);
+                        returnPage =AUTHORS_PAGE;
                     } else if (request.getParameter(PRAM_DEL) != null) {
-                        view = request.getRequestDispatcher(AUTHORS_PAGE);
+                        returnPage =AUTHORS_PAGE;
 
                         for (String s : parameterValues) {
 
@@ -125,14 +126,14 @@ public class AuthorController extends HttpServlet {
 
                     } else {
 
-                        view = request.getRequestDispatcher(ADD_AUTHOR_PAGE);
+                        returnPage =ADD_AUTHOR_PAGE;
                         request.setAttribute(DB_AUTHOR_TABLE, service.getSingleAuthor(DB_AUTHOR_TABLE, 50, DB_AUTHOR_ID, parameterValues[0]));
                     }
                     listRefresh(request, service);
 
                     break;
                 case ACTION_AUTHOR_UPDATE:
-                    view = request.getRequestDispatcher(AUTHORS_PAGE);
+                    returnPage =AUTHORS_PAGE;
                     if (request.getParameter(PRAM_SUBMIT) != null) {
                         List val = new ArrayList<>();
                         val.add(request.getParameter(PRAM_AUTHOR_NAME));
@@ -143,7 +144,7 @@ public class AuthorController extends HttpServlet {
                     listRefresh(request, service);
                     break;
                 case ACTION_AUTHOR_SEARCH:
-                    view = request.getRequestDispatcher(AUTHORS_PAGE);
+                    returnPage =AUTHORS_PAGE;
              
                     request.setAttribute(ACTION_AUTHOR_LIST, service.getAuthorByName(DB_AUTHOR_TABLE, 50, DB_AUTHOR_NAME, request.getParameter("search")));
                       
@@ -153,10 +154,10 @@ public class AuthorController extends HttpServlet {
             }
 
         } catch (Exception e) {
-            view = request.getRequestDispatcher(AUTHORS_PAGE);
+           returnPage=AUTHORS_PAGE;
             request.setAttribute(ATT_ERR_MSG, e.getMessage());
         }
-
+                  RequestDispatcher view = getServletContext().getRequestDispatcher((response.encodeURL(returnPage)));
         view.forward(request, response);
 
     }

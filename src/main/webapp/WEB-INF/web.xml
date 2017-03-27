@@ -7,7 +7,7 @@
     </context-param>
     <context-param>
         <param-name>authorDao</param-name>
-        <param-value>edu.wctc.jjs.bookwebapp.model.AuthorDao</param-value>
+        <param-value>edu.wctc.jjs.bookwebapp.model.ConnPoolAuthorDao</param-value>
     </context-param>
     <context-param>
         <param-name>dbStrategy</param-name>
@@ -29,6 +29,20 @@
         <param-name>db.password</param-name>
         <param-value>admin</param-value>
     </context-param>
-    
+     <listener>
+        <listener-class>
+            edu.wctc.jjs.bookwebapp.listeners.MySessionListener
+        </listener-class>
+    </listener>
+    <listener>
+        <listener-class>
+            edu.wctc.jjs.bookwebapp.listeners.MyServletContextListener
+        </listener-class>
+    </listener>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
     
 </web-app>
