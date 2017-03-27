@@ -5,20 +5,15 @@
  */
 package edu.wctc.jjs.bookwebapp.controller;
 
-import edu.wctc.jjs.bookwebapp.model.AuthorDao;
-import edu.wctc.jjs.bookwebapp.model.AuthorService;
-import edu.wctc.jjs.bookwebapp.model.DbAccessor;
-import edu.wctc.jjs.bookwebapp.model.IAuthorDao;
-import edu.wctc.jjs.bookwebapp.model.MySqlDbAccessor;
+
+import edu.wctc.jjs.bookwebapp.model.AuthorFacade;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.servlet.RequestDispatcher;
@@ -48,10 +43,7 @@ public class AuthorController extends HttpServlet {
     
    
    
-    private String driverClass;
-    private String url;
-    private String userName;
-    private String password;
+    
     private String dbStrategyClassName;
     private String daoClassName;
     private String jndiName;
@@ -87,6 +79,8 @@ public class AuthorController extends HttpServlet {
     private String returnPage;
     
     
+    @EJB
+    private AuthorFacade service;
     
     
     
@@ -99,7 +93,7 @@ public class AuthorController extends HttpServlet {
         returnPage ="index.jsp";
 
         try {
-            AuthorService service = injectDependenciesAndGetAuthorService();
+            
             switch (request.getParameter(ACTION)) {
                 case ACTION_AUTHOR_LIST:
                     returnPage =AUTHORS_PAGE;
@@ -107,9 +101,8 @@ public class AuthorController extends HttpServlet {
                     break;
                 case ACTION_AUTHOR_ADD:
                    returnPage =AUTHORS_PAGE;
-                    List values = new ArrayList<>();
-                    values.add(request.getParameter(PRAM_AUTHOR_NAME));
-                    service.addAuthor(DB_AUTHOR_TABLE, COL_NAMES, values);
+                    
+                    service.addNew(request.getParameter(PRAM_AUTHOR_NAME));
                     listRefresh(request, service);
                     break;
                 case ACTION_AUTHOR_EDIT_DEL:
@@ -121,13 +114,13 @@ public class AuthorController extends HttpServlet {
 
                         for (String s : parameterValues) {
 
-                            service.deleteAuthor(DB_AUTHOR_TABLE, DB_AUTHOR_ID, s);
+                            service.deleteById(s);
                         }
 
                     } else {
 
                         returnPage =ADD_AUTHOR_PAGE;
-                        request.setAttribute(DB_AUTHOR_TABLE, service.getSingleAuthor(DB_AUTHOR_TABLE, 50, DB_AUTHOR_ID, parameterValues[0]));
+                        request.setAttribute(DB_AUTHOR_TABLE, service.find(Integer.parseInt(parameterValues[0])));
                     }
                     listRefresh(request, service);
 
@@ -139,14 +132,14 @@ public class AuthorController extends HttpServlet {
                         val.add(request.getParameter(PRAM_AUTHOR_NAME));
                         System.out.println(request.getParameter(PRAM_DATE_ADDED));
                         val.add(request.getParameter(PRAM_DATE_ADDED));
-                        service.updateAuthor(DB_AUTHOR_TABLE, COL_NAMES, val, DB_AUTHOR_ID, request.getParameter(PRAM_AUTHOR_ID));
+                        service.update(request.getParameter(PRAM_AUTHOR_ID),request.getParameter(PRAM_AUTHOR_NAME));
                     }
                     listRefresh(request, service);
                     break;
                 case ACTION_AUTHOR_SEARCH:
                     returnPage =AUTHORS_PAGE;
              
-                    request.setAttribute(ACTION_AUTHOR_LIST, service.getAuthorByName(DB_AUTHOR_TABLE, 50, DB_AUTHOR_NAME, request.getParameter("search")));
+                   // request.setAttribute(ACTION_AUTHOR_LIST, service.getAuthorByName(DB_AUTHOR_TABLE, 50, DB_AUTHOR_NAME, request.getParameter("search")));
                       
                     break;
                 default:
@@ -167,68 +160,9 @@ public class AuthorController extends HttpServlet {
         This helper method just makes the code more modular and readable.
         It's single responsibility principle for a method.
     */
-    private AuthorService injectDependenciesAndGetAuthorService() throws Exception {
-        // Use Liskov Substitution Principle and Java Reflection to
-        // instantiate the chosen DbAccessor based on the class name retrieved
-        // from web.xml
-        Class dbClass = Class.forName(dbStrategyClassName);
-        // Use Java reflection to instanntiate the DbAccessor object
-        // Note that DbAccessor classes have no constructor params
-        DbAccessor db = (DbAccessor) dbClass.newInstance();
-
-        // Use Liskov Substitution Principle and Java Reflection to
-        // instantiate the chosen DAO based on the class name retrieved above.
-        // This one is trickier because the available DAO classes have
-        // different constructor params
-        IAuthorDao authorDao = null;
-        Class daoClass = Class.forName(daoClassName);
-        Constructor constructor = null;
-        
-        // This will only work for the non-pooled AuthorDao
-        try {
-            constructor = daoClass.getConstructor(new Class[]{
-                DbAccessor.class, String.class, String.class, String.class, String.class
-            });
-        } catch(NoSuchMethodException nsme) {
-            // do nothing, the exception means that there is no such constructor,
-            // so code will continue executing below
-        }
-
-        // constructor will be null if using connectin pool dao because the
-        // constructor has a different number and type of arguments
-        
-        if (constructor != null) {
-            // conn pool NOT used so constructor has these arguments
-            Object[] constructorArgs = new Object[]{
-                db, driverClass, url, userName, password
-            };
-            authorDao = (IAuthorDao) constructor
-                    .newInstance(constructorArgs);
-        } else {
-            /*
-             Here's what the connection pool version looks like. First
-             we lookup the JNDI name of the Glassfish connection pool
-             and then we use Java Refletion to create the needed
-             objects based on the servlet init params
-             */
-            Context ctx = new InitialContext();
-            Context envCtx = (Context) ctx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup(jndiName);
-            constructor = daoClass.getConstructor(new Class[]{
-                DataSource.class, DbAccessor.class
-            });
-            Object[] constructorArgs = new Object[]{
-                ds, db
-            };
-
-            authorDao = (IAuthorDao) constructor
-                    .newInstance(constructorArgs);
-        }
-        
-        return new AuthorService(authorDao);
-    }
-    public void listRefresh(HttpServletRequest request, AuthorService service) throws ClassNotFoundException, SQLException {
-        request.setAttribute(ACTION_AUTHOR_LIST, service.getAllAuthor(DB_AUTHOR_TABLE, 50));
+    
+    public void listRefresh(HttpServletRequest request, AuthorFacade service) throws ClassNotFoundException, SQLException {
+        request.setAttribute(ACTION_AUTHOR_LIST, service.findAll());
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -272,17 +206,6 @@ public class AuthorController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        driverClass = getServletContext()
-                .getInitParameter("db.driver.class");
-        url = getServletContext()
-                .getInitParameter("db.url");
-        userName = getServletContext()
-                .getInitParameter("db.username");
-        password = getServletContext()
-                .getInitParameter("db.password");
-
-        dbStrategyClassName = getServletContext().getInitParameter("dbStrategy");
-        daoClassName = getServletContext().getInitParameter("authorDao");
-        jndiName = getServletContext().getInitParameter("connPoolName");
+        
     }
 }
