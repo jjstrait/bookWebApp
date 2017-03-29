@@ -24,7 +24,7 @@ scope="session" />
         <h1>Add Author</h1>
         
         <form class="form-horizontal" id="form1" name="formRect" method="POST" action="<%= response.encodeURL("AuthorController?action=authorAdd") %>">
-            <div class="form-group form-group-lg">
+            <div class="form-group form-group-lg has-danger">
                 <label class="col-sm-2 control-label" for="authorName">Author Name:</label>
                 <div class="col-sm-10">
                     <input class="form-control" type="text" id="authorName" name ="authorName"  value="${author.authorName}" required>

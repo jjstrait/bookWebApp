@@ -212,8 +212,8 @@ public class AuthorController extends HttpServlet {
              objects based on the servlet init params
              */
             Context ctx = new InitialContext();
-            Context envCtx = (Context) ctx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup(jndiName);
+          //Context envCtx = (Context) ctx.lookup("java:comp/env");
+            DataSource ds = (DataSource) ctx.lookup(jndiName);
             constructor = daoClass.getConstructor(new Class[]{
                 DataSource.class, DbAccessor.class
             });
