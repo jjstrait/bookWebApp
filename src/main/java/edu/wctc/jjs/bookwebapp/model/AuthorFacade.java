@@ -53,7 +53,19 @@ public class AuthorFacade extends AbstractFacade<Author> {
         this.edit(a);
     }
     
-    public void addOrUpdate(){
-    
+    public int addOrUpdate(String id, String name){
+       if(id == null||id.equals("0")){
+       Author a = new Author();
+    a.setAuthorName(name);
+    Date createDate = new Date();
+    a.setDateAdded(createDate);
+    this.create(a);
+       }
+         Integer iId=Integer.parseInt(id);
+        String jpql = "UPDATE Author a SET a.authorName = :name WHERE a.authorId = :id";
+        Query q = this.getEntityManager().createQuery(jpql);
+        q.setParameter("id", iId);
+        q.setParameter("name", name);
+        return q.executeUpdate();
     }
 }
