@@ -16,7 +16,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-        <a class="navbar-brand" href="<%= response.encodeURL("index.jsp") %>">Book Web Application</a>
+        <a class="navbar-brand" href="index.jsp">Book Web Application</a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
