@@ -1,5 +1,5 @@
 <%-- 
-    Document   : authors
+    Document   : books
     Created on : Feb 8, 2017, 12:05:11 AM
     Author     : Joshua
 --%>
@@ -14,23 +14,23 @@ scope="session" />
 <html lang="${language}">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Author Page</title>
+        <title>Books Page</title>
         <jsp:include page="templates/bundleLinks.jsp"/>
         
         
     </head>
     <body>
          <jsp:include page="templates/navbar.jsp"/>
-        <h1>Authors</h1>
+        <h1>Books</h1>
         <div>
-            <form id="form1" name="formRect" method="POST" action="<%= response.encodeURL("AuthorController?action=authorEditDel") %>">        
+            <form id="form1" name="formRect" method="POST" action="<%= response.encodeURL("BookController?action=bookEditDel") %>">        
 
                 <table id="table" class="table table-bordered table-striped table-condensed table-hover">
                     <thead class="">
-                        <tr class="font-md"><th>Select</th><th>Author Name</th><th>Date Added</th></tr>
+                        <tr class="font-md"><th>Select</th><th>Book Title</th><th>ISBN</th><th>Author</th></tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="a" items="${authorList}" varStatus="line">
+                        <c:forEach var="b" items="${bookList}" varStatus="line">
                             <tr onclick="selectRow(this)">
 
 
@@ -38,12 +38,12 @@ scope="session" />
 
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" name="optionsCheckbox" id="${a.authorId}" value="${a.authorId}" >
+                                            <input type="checkbox" name="optionsCheckbox" id="${b.bookId}" value="${b.bookId}" >
                                         </label>    
 
                                     </div>
 
-                                </td><td>${a.authorName}</td><td>${a.dateAdded}</td>
+                                </td><td>${b.title}</td><td>${b.isbn}</td><td>${b.authorId.authorName}</td>
 
                             </tr>
 
@@ -53,9 +53,14 @@ scope="session" />
                 <input class="btn btn-primary" name="edit" type="submit" value="Edit">
                 <input class="btn btn-danger" name="del" type="submit" value="Delete">
 
-                <span class="pull-right"><input class="btn btn-success" name="Add" type="button" value="Add" onclick="window.location = 'addAuthor.jsp';"></span>
+              
 
             </form>
+              <form class="form-group form-group-lg" id="form1" name="formRect" method="POST" action="<%= response.encodeURL("AuthorController?action=autohrsForBook") %>">
+                <div class="col-md-offset-1">
+            <input class="btn btn-default" type="submit" value="Add Book">
+                </div>
+        </form>
 
         </div>
         

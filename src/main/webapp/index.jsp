@@ -23,10 +23,15 @@ scope="session" />
         
         <div class="jumbotron">
             <h2>Authors Data View:</h2>
-            
+            ${errMsg}
             <form class="form-group form-group-lg" id="form1" name="formRect" method="POST" action="<%= response.encodeURL("AuthorController?action=authorList") %>">
                 <div class="col-md-offset-1">
             <input class="btn btn-default" type="submit" value="List of Authors">
+                </div>
+        </form>
+                 <form class="form-group form-group-lg" id="form1" name="formRect" method="POST" action="<%= response.encodeURL("BookController?action=bookList") %>">
+                <div class="col-md-offset-1">
+            <input class="btn btn-default" type="submit" value="List of Books">
                 </div>
         </form>
         </div>

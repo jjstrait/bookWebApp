@@ -121,7 +121,9 @@ public class AuthorController extends HttpServlet {
 
                         returnPage =ADD_AUTHOR_PAGE;
                         request.setAttribute(DB_AUTHOR_TABLE, service.find(Integer.parseInt(parameterValues[0])));
+                        System.out.println(service.find(Integer.parseInt(parameterValues[0])).getBookSet());
                     }
+                    
                     listRefresh(request, service);
 
                     break;
@@ -132,7 +134,7 @@ public class AuthorController extends HttpServlet {
                         val.add(request.getParameter(PRAM_AUTHOR_NAME));
                         System.out.println(request.getParameter(PRAM_DATE_ADDED));
                         val.add(request.getParameter(PRAM_DATE_ADDED));
-                        service.update(request.getParameter(PRAM_AUTHOR_ID),request.getParameter(PRAM_AUTHOR_NAME));
+                        service.addOrUpdate(request.getParameter(PRAM_AUTHOR_ID),request.getParameter(PRAM_AUTHOR_NAME));
                     }
                     listRefresh(request, service);
                     break;
@@ -140,6 +142,12 @@ public class AuthorController extends HttpServlet {
                     returnPage =AUTHORS_PAGE;
              
                    // request.setAttribute(ACTION_AUTHOR_LIST, service.getAuthorByName(DB_AUTHOR_TABLE, 50, DB_AUTHOR_NAME, request.getParameter("search")));
+                      
+                    break;
+                     case "autohrsForBook":
+                    returnPage ="/addBook.jsp";
+                    listRefresh(request, service);
+                    
                       
                     break;
                 default:

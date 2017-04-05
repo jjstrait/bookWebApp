@@ -55,6 +55,11 @@ public class AuthorFacade extends AbstractFacade<Author> {
         
     }
     
+    public Author findAuthor(String id){
+      return this.find(Integer.parseInt(id));
+ 
+    }
+    
     public int addOrUpdate(String id, String name){
        if(id == null||id.equals("0")){
        addNew(name);
