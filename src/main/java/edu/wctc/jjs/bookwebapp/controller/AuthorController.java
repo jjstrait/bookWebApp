@@ -97,13 +97,13 @@ public class AuthorController extends HttpServlet {
             switch (request.getParameter(ACTION)) {
                 case ACTION_AUTHOR_LIST:
                     returnPage =AUTHORS_PAGE;
-                    listRefresh(request, service);
+                    listRefresh(request);
                     break;
                 case ACTION_AUTHOR_ADD:
                    returnPage =AUTHORS_PAGE;
                     
                     service.addNew(request.getParameter(PRAM_AUTHOR_NAME));
-                    listRefresh(request, service);
+                    listRefresh(request);
                     break;
                 case ACTION_AUTHOR_EDIT_DEL:
                     String[] parameterValues = request.getParameterValues(PRAM_CHECK_BOX);
@@ -111,7 +111,7 @@ public class AuthorController extends HttpServlet {
                         returnPage =AUTHORS_PAGE;
                     } else if (request.getParameter(PRAM_DEL) != null) {
                         returnPage =AUTHORS_PAGE;
-
+ 
                         for (String s : parameterValues) {
 
                             service.deleteById(s);
@@ -124,7 +124,7 @@ public class AuthorController extends HttpServlet {
                         System.out.println(service.find(Integer.parseInt(parameterValues[0])).getBookSet());
                     }
                     
-                    listRefresh(request, service);
+                    listRefresh(request);
 
                     break;
                 case ACTION_AUTHOR_UPDATE:
@@ -136,7 +136,7 @@ public class AuthorController extends HttpServlet {
                         val.add(request.getParameter(PRAM_DATE_ADDED));
                         service.addOrUpdate(request.getParameter(PRAM_AUTHOR_ID),request.getParameter(PRAM_AUTHOR_NAME));
                     }
-                    listRefresh(request, service);
+                    listRefresh(request);
                     break;
                 case ACTION_AUTHOR_SEARCH:
                     returnPage =AUTHORS_PAGE;
@@ -146,7 +146,7 @@ public class AuthorController extends HttpServlet {
                     break;
                      case "autohrsForBook":
                     returnPage ="/addBook.jsp";
-                    listRefresh(request, service);
+                    listRefresh(request);
                     
                       
                     break;
@@ -169,7 +169,7 @@ public class AuthorController extends HttpServlet {
         It's single responsibility principle for a method.
     */
     
-    public void listRefresh(HttpServletRequest request, AuthorFacade service) throws ClassNotFoundException, SQLException {
+    public void listRefresh(HttpServletRequest request) throws ClassNotFoundException, SQLException {
         request.setAttribute(ACTION_AUTHOR_LIST, service.findAll());
     }
 

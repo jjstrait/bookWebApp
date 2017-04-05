@@ -6,6 +6,7 @@
 package edu.wctc.jjs.bookwebapp.model;
 
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -21,6 +22,10 @@ public class BookFacade extends AbstractFacade<Book> {
  
     @PersistenceContext(unitName = "edu.wctc.jjs_bookWebApp_war_1.0-SNAPSHOTPU")
     private EntityManager em;
+    
+    @EJB
+    AuthorFacade authService;
+    
 
     @Override
     protected EntityManager getEntityManager() {
@@ -41,17 +46,27 @@ public class BookFacade extends AbstractFacade<Book> {
         if(id == null||id.isEmpty()){
                throw new IllegalArgumentException("ID is null"); 
         }
-    List results = em.createNamedQuery("Author.findByAuthorId")
-    .setParameter("authorId", Integer.parseInt(id)).getResultList();
-        Book b = new Book();
-        b.setTitle(title);
-        b.setIsbn(isbn);
-        b.setAuthorId((Author)results.get(0));
+        
+        Author author = authService.find(new Integer(id));
+        Set<Book> bookSet = author.getBookSet();
+        Book book = new Book();
+        book.setIsbn(isbn);
+        book.setTitle(title);
+        book.setAuthorId(author);
+        bookSet.add(book);
+        authService.edit(author);
+        
+//    List results = em.createNamedQuery("Author.findByAuthorId")
+//    .setParameter("authorId", Integer.parseInt(id)).getResultList();
+//        Book b = new Book();
+//        b.setTitle(title);
+//        b.setIsbn(isbn);
+//        b.setAuthorId((Author)results.get(0));
    
     
     
     
-    this.create(b);
+    //this.create(b);
     
     }
     

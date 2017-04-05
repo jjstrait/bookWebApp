@@ -138,6 +138,8 @@ public class BookController extends HttpServlet {
 
     public void listRefresh(HttpServletRequest request, BookFacade service) throws ClassNotFoundException, SQLException {
         request.setAttribute(ACTION_BOOK_LIST, service.findAll());
+        request.setAttribute("authorList", aService.findAll());
+        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
