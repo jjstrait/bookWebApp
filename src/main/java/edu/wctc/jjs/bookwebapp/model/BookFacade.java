@@ -5,7 +5,10 @@
  */
 package edu.wctc.jjs.bookwebapp.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -36,6 +39,15 @@ public class BookFacade extends AbstractFacade<Book> {
         super(Book.class);
     }
     
+    public List<Book> findBooksFor(String authorId){
+    Integer iId=Integer.parseInt(authorId);
+        String jpql = "SELECT Book b WHERE b.authorId = :id";
+        Query q = this.getEntityManager().createQuery(jpql);
+        q.setParameter("id", iId);
+         //List results = q.executeUpdate();
+        return null;
+    }
+    
     public void addNew(String title, String isbn,String id){
         if(id == null||id.isEmpty()){
                throw new IllegalArgumentException("ID is null"); 
@@ -53,6 +65,7 @@ public class BookFacade extends AbstractFacade<Book> {
         book.setIsbn(isbn);
         book.setTitle(title);
         book.setAuthorId(author);
+        this.create(book);
         bookSet.add(book);
         authService.edit(author);
         
@@ -70,12 +83,28 @@ public class BookFacade extends AbstractFacade<Book> {
     
     }
     
-     public int deleteById(String id){
+     public void deleteById(String id){
         Integer iId=Integer.parseInt(id);
+        
+        Book book = this.find(iId);
+        
+        int authorId = book.getAuthorId().getAuthorId();
+        Author author = authService.find(authorId);
+       Set<Book> books = author.getBookSet();
+        Set newBooks = new HashSet();
+        for(Book b: books){
+            if(!Objects.equals(b.getBookId(), iId)){
+                newBooks.add(b);
+            }
+        }
+        
+        author.setBookSet(newBooks);
+        authService.edit(author);
+        
         String jpql = "delete from Book a where a.bookId = :id";
         Query q = this.getEntityManager().createQuery(jpql);
         q.setParameter("id", iId);
-        return q.executeUpdate();
+        q.executeUpdate();
     }
     
      public void update(String title, String isbn, String id, String authorId){
